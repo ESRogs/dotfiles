@@ -43,3 +43,5 @@ for rc in ~/.bashrc ~/.zshrc; do
 done
 
 echo "Done!"
+echo ""
+echo "Run 'source ~/.aliases' or restart your shell to load aliases."
