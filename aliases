@@ -1,0 +1,4 @@
+# Shell aliases
+
+# Git shortcuts
+alias gis="git status"
