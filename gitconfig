@@ -1,6 +1,5 @@
 [alias]
     co = checkout
-    cor = checkout
     cp = cherry-pick
     dd = difftool -y
     ff = merge --ff-only
@@ -8,15 +7,14 @@
     l = log --oneline --graph --branches --tags --remotes --not --remotes="*/gh-pages" --pretty=format:\"%x09%C(auto)%h %C(blue bold)%ai %>(14)%C(reset)%C(magenta bold ul)%ar%Creset %>(10,mtrunc)%C(yellow bold)%an%C(auto) %s %d\"
     ll = log --decorate --graph --shortstat --branches --tags --remotes --not --remotes="*/gh-pages"
     mm = mergetool
-    pp = mergetool --tool p4
     st = status
     unstage = reset HEAD
-    ra = "!f() { git remote -v | grep origin | grep fetch | sed 's/origin\\s\\+//' | sed 's/ \\(.*\\)//' | sed \"s/:[^/]\\+/:$1/\" | xargs -I % git remote add $1 %; }; f"
-    rr = "!f() { git branch --merged | grep -v -e master -e \\* | xargs -I % git branch -d %; }; f"
-    biggest = "!f() { git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '/^blob/ {print substr($0,6)}' | sort --numeric-sort --key=2 | cut --complement --characters=13-40 | numfmt --field=2 --to=iec-i --suffix=B --padding=7 --round=nearest; }; f"
+    ra = "!f() { git remote add \"$1\" \"$(git remote get-url origin | sed -E 's#([:/])[^/:]+/([^/]+)$#\\1'\"$1\"'/\\2#')\"; }; f"
+    rr = "!f() { git branch --merged | grep -vE '^\\*|^ *(main|master)$' | xargs -n 1 git branch -d; }; f"
+    biggest = "!f() { git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '$1 == \"blob\"' | sort -n -k 3 | awk '{ size = $3; unit = 1; while (size >= 1024 && unit < 4) { size /= 1024; unit++ }; split(\"B KiB MiB GiB\", units); printf \"%s %7.1f %-3s %s\\n\", substr($2, 1, 12), size, units[unit], $4 }'; }; f"
     patch = commit --amend --no-edit
-    pr = "!f() { hub pull-request $@; }; f"
-    ci = "!f() { hub ci-status $@; }; f"
+    pr = !gh pr create
+    ci = !gh pr checks
     poke = "commit --amend --no-edit --reset-author"
     rbc = rebase --continue
 [push]
