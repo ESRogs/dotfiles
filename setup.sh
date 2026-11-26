@@ -8,13 +8,26 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Setting up dotfiles from $DOTFILES_DIR..."
 
-# Include this repo's gitconfig from ~/.gitconfig, which keeps settings
-# that belong to one person or machine, such as user.name and user.email
+# If ~/.gitconfig is a link to this repo's gitconfig, replace it with a
+# regular file, so that git config --global doesn't write into this repo
+if [ -L ~/.gitconfig ] && [ ~/.gitconfig -ef "$DOTFILES_DIR/gitconfig" ]; then
+    rm ~/.gitconfig
+    touch ~/.gitconfig
+    echo "Replaced the ~/.gitconfig link to $DOTFILES_DIR/gitconfig with a regular file"
+fi
+
+# Include this repo's gitconfig at the top of ~/.gitconfig. The rest of
+# ~/.gitconfig keeps settings that belong to one person or machine, such as
+# user.name and user.email, and overrides this repo's settings.
 if git config --global --get-all include.path | grep -qxF "$DOTFILES_DIR/gitconfig"; then
     echo "~/.gitconfig already includes $DOTFILES_DIR/gitconfig, skipping"
 else
-    git config --global --add include.path "$DOTFILES_DIR/gitconfig"
-    echo "Added an include of $DOTFILES_DIR/gitconfig to ~/.gitconfig"
+    new_gitconfig="$(mktemp)"
+    printf '[include]\n\tpath = %s\n' "$DOTFILES_DIR/gitconfig" > "$new_gitconfig"
+    cat ~/.gitconfig >> "$new_gitconfig" 2>/dev/null || true
+    cat "$new_gitconfig" > ~/.gitconfig
+    rm "$new_gitconfig"
+    echo "Added an include of $DOTFILES_DIR/gitconfig to the top of ~/.gitconfig"
 fi
 
 # Ask for the git identity if ~/.gitconfig doesn't have one yet

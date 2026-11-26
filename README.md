@@ -35,7 +35,7 @@ On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this fo
 - `aliases` - Shell aliases
 - `Brewfile` - The optional tools, for `brew bundle` on a Mac
 
-`setup.sh` adds an `[include]` of this repo's `gitconfig` to `~/.gitconfig`. Other settings, such as `user.name` and `user.email`, stay in `~/.gitconfig`. If they aren't set yet, `setup.sh` asks for them.
+`setup.sh` adds an `[include]` of this repo's `gitconfig` at the top of `~/.gitconfig`. Other settings, such as `user.name` and `user.email`, stay in `~/.gitconfig` and override this repo's settings. If they aren't set yet, `setup.sh` asks for them.
 
 `setup.sh` adds a line to `~/.zprofile` that sources this repo's `zprofile`, and two lines to `~/.zshrc` that set `GIT_PROMPT_DIR` and source this repo's `zshrc`. Settings for one machine only can stay in `~/.zprofile` and `~/.zshrc`.
 
