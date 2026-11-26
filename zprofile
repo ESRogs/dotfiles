@@ -7,3 +7,6 @@ for brew in /opt/homebrew/bin/brew /usr/local/bin/brew; do
 done
 
 export PATH="$HOME/.local/bin:$PATH"
+
+# Keep only the first copy of each PATH entry, so that sourcing this file again adds no duplicates
+typeset -U path
