@@ -86,21 +86,33 @@ fi
 
 # Ask where git-prompt.zsh should go, unless ~/.zshrc already says, and clone it if missing
 GIT_PROMPT_DIR="$(sed -n 's/^export GIT_PROMPT_DIR="\(.*\)"$/\1/p' ~/.zshrc 2>/dev/null | tail -n 1)"
+zshrc_sets_prompt_dir="${GIT_PROMPT_DIR:+yes}"
 if [ -z "$GIT_PROMPT_DIR" ]; then
     default="$HOME/code/git-prompt.zsh"
     read -r -p "Folder for git-prompt.zsh [$default]: " GIT_PROMPT_DIR || true
     GIT_PROMPT_DIR="${GIT_PROMPT_DIR:-$default}"
-    GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\~/$HOME}"
 fi
+GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\~/$HOME}"
+GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\$HOME/$HOME}"
+case "$GIT_PROMPT_DIR" in
+    /*) ;;
+    *) GIT_PROMPT_DIR="$PWD/$GIT_PROMPT_DIR" ;;
+esac
 GIT_PROMPT_VERSION="v2.4.0"
-if [ ! -d "$GIT_PROMPT_DIR" ]; then
-    git -c advice.detachedHead=false clone --branch "$GIT_PROMPT_VERSION" https://github.com/woefe/git-prompt.zsh "$GIT_PROMPT_DIR"
+if [ -r "$GIT_PROMPT_DIR/git-prompt.zsh" ]; then
+    echo "$GIT_PROMPT_DIR already has git-prompt.zsh, skipping"
+elif [ -e "$GIT_PROMPT_DIR" ]; then
+    echo "$GIT_PROMPT_DIR has no git-prompt.zsh, so the prompt will leave out git status"
+elif ! git -c advice.detachedHead=false clone --branch "$GIT_PROMPT_VERSION" https://github.com/woefe/git-prompt.zsh "$GIT_PROMPT_DIR"; then
+    echo "Couldn't clone git-prompt.zsh, so the prompt will leave out git status. Run setup.sh again to retry."
 fi
 
 # Load this repo's zprofile and zshrc from ~/.zprofile and ~/.zshrc,
 # which keep any settings for one machine only
 add_line ~/.zprofile "source \"$DOTFILES_DIR/zprofile\""
-add_line ~/.zshrc "export GIT_PROMPT_DIR=\"$GIT_PROMPT_DIR\""
+if [ -z "$zshrc_sets_prompt_dir" ]; then
+    add_line ~/.zshrc "export GIT_PROMPT_DIR=\"$GIT_PROMPT_DIR\""
+fi
 add_line ~/.zshrc "source \"$DOTFILES_DIR/zshrc\""
 
 echo "Done!"
