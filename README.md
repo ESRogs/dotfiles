@@ -4,13 +4,15 @@ My personal configuration files for zsh and git, on macOS or Linux.
 
 ## Setup
 
-Setup needs git, bash and zsh. On a Mac, install [Homebrew](https://brew.sh) first, which also installs git:
+Setup needs git, bash and zsh:
 
 ```bash
 git clone https://github.com/ESRogs/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./setup.sh
 ```
+
+On a fresh Mac, running `git` for the first time offers to install Apple's Command Line Tools, which include git. On Linux, run `chsh -s "$(which zsh)"` if zsh isn't your login shell yet.
 
 ## Optional tools
 
@@ -22,10 +24,10 @@ Each of these tools turns on a few more features:
 | [git-lfs](https://git-lfs.com) | repos that use Git LFS. Run `git lfs install` once to download LFS files on every checkout, or `git lfs install --skip-smudge` to keep the small pointer files until you run `git lfs pull` in a repo. |
 | [uv](https://docs.astral.sh/uv/) | the `py` alias |
 | [Starship](https://starship.rs) | the `pstar` prompt |
-| [VS Code](https://code.visualstudio.com) | the `vs` alias |
+| [VS Code](https://code.visualstudio.com) | the `vs` alias, which needs VS Code's `code` command on `PATH` |
 | tmux, btop, watch | nothing in these files; they're tools I use everywhere |
 
-On a Mac, run `brew bundle` in this folder to install them all. On Linux, use your package manager or each tool's own installer.
+On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this folder, in a shell opened after `setup.sh`, to install them all. On Linux, use your package manager or each tool's own installer.
 
 ## Contents
 
