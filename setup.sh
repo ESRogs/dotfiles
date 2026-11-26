@@ -98,7 +98,7 @@ GIT_PROMPT_DIR="$(sed -n 's/^export GIT_PROMPT_DIR="\(.*\)"$/\1/p' ~/.zshrc 2>/d
 zshrc_sets_prompt_dir="${GIT_PROMPT_DIR:+yes}"
 if [ -z "$GIT_PROMPT_DIR" ]; then
     default="$HOME/code/git-prompt.zsh"
-    read -r -p "Folder for git-prompt.zsh [$default]: " GIT_PROMPT_DIR || true
+    read -r -p "Folder for git-prompt.zsh [$default]: " GIT_PROMPT_DIR || echo
     GIT_PROMPT_DIR="${GIT_PROMPT_DIR:-$default}"
 fi
 GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\~/$HOME}"
