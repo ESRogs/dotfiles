@@ -21,22 +21,31 @@ use_git_prompt() {
         source "$script"
         git_status=' $(gitprompt)'
     else
-        echo "Can't find $script, so the prompt leaves out git status"
+        echo "Can't find $script, so the prompt leaves out git status" >&2
     fi
     PROMPT='%(?.%F{green}✔.%F{red}✘)%f %F{yellow}%~%f'"$git_status"'
 %F{white}%T%f %# '
 }
 
+# Replace this shell with a new zsh that uses the prompt style in $1, keeping a login shell a login shell
+restart_with_prompt() {
+    if [[ -o login ]]; then
+        PROMPT_STYLE="$1" exec zsh -l
+    else
+        PROMPT_STYLE="$1" exec zsh
+    fi
+}
+
 pstar() {
     if ! (( $+commands[starship] )); then
-        echo "Starship isn't installed"
+        echo "Starship isn't installed" >&2
         return 1
     fi
-    PROMPT_STYLE=starship exec zsh
+    restart_with_prompt starship
 }
 
 pgit() {
-    PROMPT_STYLE=git exec zsh
+    restart_with_prompt git
 }
 
 if [[ "$PROMPT_STYLE" == "starship" ]] && (( $+commands[starship] )); then
