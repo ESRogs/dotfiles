@@ -6,8 +6,8 @@ autoload -U colors && colors
 [ -f ~/.aliases ] && source ~/.aliases
 
 # Prompt: git-prompt.zsh (default) or Starship.
-# Set PROMPT_STYLE=starship before this file runs to start with Starship,
-# or run pstar / pgit to switch in the current shell.
+# To start with Starship, add : ${PROMPT_STYLE:=starship} to ~/.zshrc before the line that sources this file.
+# pstar and pgit replace the current shell with a new one that uses the other prompt.
 # GIT_PROMPT_DIR is the folder that git-prompt.zsh is cloned into. setup.sh sets it in ~/.zshrc.
 PROMPT_STYLE="${PROMPT_STYLE:-git}"
 
@@ -30,19 +30,16 @@ pstar() {
         echo "Starship isn't installed"
         return 1
     fi
-    PROMPT_STYLE="starship"
-    eval "$(starship init zsh)"
-    echo "Switched to Starship prompt"
+    PROMPT_STYLE=starship exec zsh
 }
 
 pgit() {
-    PROMPT_STYLE="git"
-    use_git_prompt
-    echo "Switched to git-prompt.zsh"
+    PROMPT_STYLE=git exec zsh
 }
 
 if [[ "$PROMPT_STYLE" == "starship" ]] && (( $+commands[starship] )); then
-    eval "$(starship init zsh)"
+    # Set up Starship once per shell, since each setup wraps the previous one's key handler
+    (( $+functions[prompt_starship_precmd] )) || eval "$(starship init zsh)"
 else
     use_git_prompt
 fi
