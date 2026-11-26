@@ -8,12 +8,18 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "Setting up dotfiles from $DOTFILES_DIR..."
 
-# If ~/.gitconfig is a link to this repo's gitconfig, replace it with a
-# regular file, so that git config --global doesn't write into this repo
-if [ -L ~/.gitconfig ] && [ ~/.gitconfig -ef "$DOTFILES_DIR/gitconfig" ]; then
-    rm ~/.gitconfig
-    touch ~/.gitconfig
-    echo "Replaced the ~/.gitconfig link to $DOTFILES_DIR/gitconfig with a regular file"
+# ~/.gitconfig must be a regular file, so that git config --global writes to
+# this machine's settings. Replace a link to this repo's gitconfig, or a broken
+# link, and stop at a link to any other file.
+if [ -L ~/.gitconfig ]; then
+    if [ ~/.gitconfig -ef "$DOTFILES_DIR/gitconfig" ] || [ ! -e ~/.gitconfig ]; then
+        rm ~/.gitconfig
+        touch ~/.gitconfig
+        echo "Replaced the ~/.gitconfig link with a regular file"
+    else
+        echo "~/.gitconfig is a link to $(readlink ~/.gitconfig). Replace it with a regular file, then run setup.sh again."
+        exit 1
+    fi
 fi
 
 # Include this repo's gitconfig at the top of ~/.gitconfig. The rest of
@@ -22,9 +28,14 @@ fi
 if git config --global --get-all include.path | grep -qxF "$DOTFILES_DIR/gitconfig"; then
     echo "~/.gitconfig already includes $DOTFILES_DIR/gitconfig, skipping"
 else
+    # Quote the path for git, so that characters such as # stay part of it
+    quoted_path="${DOTFILES_DIR//\\/\\\\}"
+    quoted_path="${quoted_path//\"/\\\"}"
     new_gitconfig="$(mktemp)"
-    printf '[include]\n\tpath = %s\n' "$DOTFILES_DIR/gitconfig" > "$new_gitconfig"
-    cat ~/.gitconfig >> "$new_gitconfig" 2>/dev/null || true
+    printf '[include]\n\tpath = "%s"\n' "$quoted_path/gitconfig" > "$new_gitconfig"
+    if [ -e ~/.gitconfig ]; then
+        cat ~/.gitconfig >> "$new_gitconfig"
+    fi
     cat "$new_gitconfig" > ~/.gitconfig
     rm "$new_gitconfig"
     echo "Added an include of $DOTFILES_DIR/gitconfig to the top of ~/.gitconfig"
