@@ -22,23 +22,31 @@ if [ -L ~/.gitconfig ]; then
     fi
 fi
 
-# Include this repo's gitconfig at the top of ~/.gitconfig. The rest of
-# ~/.gitconfig keeps settings that belong to one person or machine, such as
+# Git reads ~/.config/git/config before ~/.gitconfig. If only the first of
+# these exists, put the include there, so that its settings still win.
+global_gitconfig="$HOME/.gitconfig"
+xdg_gitconfig="${XDG_CONFIG_HOME:-$HOME/.config}/git/config"
+if [ ! -e "$global_gitconfig" ] && [ -f "$xdg_gitconfig" ]; then
+    global_gitconfig="$xdg_gitconfig"
+fi
+
+# Include this repo's gitconfig at the top of the global git config. The rest
+# of that file keeps settings that belong to one person or machine, such as
 # user.name and user.email, and overrides this repo's settings.
 if git config --global --get-all include.path | grep -qxF "$DOTFILES_DIR/gitconfig"; then
-    echo "~/.gitconfig already includes $DOTFILES_DIR/gitconfig, skipping"
+    echo "The global git config already includes $DOTFILES_DIR/gitconfig, skipping"
 else
     # Quote the path for git, so that characters such as # stay part of it
     quoted_path="${DOTFILES_DIR//\\/\\\\}"
     quoted_path="${quoted_path//\"/\\\"}"
     new_gitconfig="$(mktemp)"
     printf '[include]\n\tpath = "%s"\n' "$quoted_path/gitconfig" > "$new_gitconfig"
-    if [ -e ~/.gitconfig ]; then
-        cat ~/.gitconfig >> "$new_gitconfig"
+    if [ -e "$global_gitconfig" ]; then
+        cat "$global_gitconfig" >> "$new_gitconfig"
     fi
-    cat "$new_gitconfig" > ~/.gitconfig
+    cat "$new_gitconfig" > "$global_gitconfig"
     rm "$new_gitconfig"
-    echo "Added an include of $DOTFILES_DIR/gitconfig to the top of ~/.gitconfig"
+    echo "Added an include of $DOTFILES_DIR/gitconfig to the top of $global_gitconfig"
 fi
 
 # Ask for the git identity if ~/.gitconfig doesn't have one yet
