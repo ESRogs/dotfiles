@@ -9,8 +9,8 @@
     mm = mergetool
     st = status
     unstage = reset HEAD
-    ra = "!f() { git remote add \"$1\" \"$(git remote get-url origin | sed -E 's#([:/])[^/:]+/([^/]+)$#\\1'\"$1\"'/\\2#')\"; }; f"
-    rr = "!f() { git branch --merged | grep -vE '^\\*|^ *(main|master)$' | xargs -r -n 1 git branch -d; }; f"
+    ra = "!f() { origin=\"$(git remote get-url origin)\" || return; git remote add \"$1\" \"$(printf '%s\\n' \"$origin\" | sed -E 's#([:/])[^/:]+/([^/]+)$#\\1'\"$1\"'/\\2#')\"; }; f"
+    rr = "!f() { git branch --merged | grep -vE '^[*+]|^ *(main|master)$' | xargs -r -n 1 git branch -d; }; f"
     biggest = "!f() { git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '$1 == \"blob\"' | sort -n -k 3 | awk '{ size = $3; unit = 1; while (size >= 1024 && unit < 4) { size /= 1024; unit++ }; split(\"B KiB MiB GiB\", units); path = $0; sub(/^[^ ]+ [^ ]+ [^ ]+ /, \"\", path); printf \"%s %7.1f %-3s %s\\n\", substr($2, 1, 12), size, units[unit], path }'; }; f"
     patch = commit --amend --no-edit
     pr = !gh pr create
