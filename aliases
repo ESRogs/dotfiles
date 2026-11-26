@@ -2,3 +2,7 @@
 
 # Git shortcuts
 alias gis="git status"
+
+alias vs="code"
+alias py="uv run python"
+alias rezsh="source ~/.zprofile && source ~/.zshrc"
