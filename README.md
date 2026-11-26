@@ -1,8 +1,10 @@
 # dotfiles
 
-My personal configuration files for macOS with zsh.
+My personal configuration files for zsh and git, on macOS or Linux.
 
 ## Setup
+
+Setup needs git, bash and zsh:
 
 ```bash
 git clone https://github.com/ESRogs/dotfiles.git ~/dotfiles
@@ -10,12 +12,28 @@ cd ~/dotfiles
 ./setup.sh
 ```
 
+## Optional tools
+
+Everything works without these tools. Each one turns on a few more features:
+
+| Tool | What it enables |
+|---|---|
+| [gh](https://cli.github.com) | the `pr` and `ci` git aliases, and GitHub logins through `gh` (run `gh auth login`) |
+| [git-lfs](https://git-lfs.com) | repos that use Git LFS (run `git lfs install`) |
+| [uv](https://docs.astral.sh/uv/) | the `py` alias |
+| [Starship](https://starship.rs) | the `pstar` prompt |
+| [VS Code](https://code.visualstudio.com) | the `vs` alias |
+| tmux, btop, watch | nothing in these files; they're tools I use everywhere |
+
+On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this folder to install them all. On Linux, use your package manager or each tool's own installer.
+
 ## Contents
 
 - `gitconfig` - Git aliases, git-lfs, and `gh` as the credential helper for GitHub
 - `zshrc` - Completions, colors, aliases, and the prompt
-- `zprofile` - Homebrew's environment, and `~/.local/bin` on `PATH`
+- `zprofile` - Homebrew's environment if Homebrew is installed, and `~/.local/bin` on `PATH`
 - `aliases` - Shell aliases
+- `Brewfile` - The optional tools, for `brew bundle` on a Mac
 
 `setup.sh` adds an `[include]` of this repo's `gitconfig` to `~/.gitconfig`. Other settings, such as `user.name` and `user.email`, stay in `~/.gitconfig`. If they aren't set yet, `setup.sh` asks for them.
 

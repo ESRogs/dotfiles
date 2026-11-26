@@ -1,0 +1,8 @@
+brew "gh"
+brew "git-lfs"
+brew "starship"
+brew "uv"
+brew "tmux"
+brew "btop"
+brew "watch"
+cask "visual-studio-code"
