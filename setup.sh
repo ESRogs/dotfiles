@@ -44,11 +44,12 @@ fi
 # Ask for the git identity if ~/.gitconfig doesn't have one yet
 for key in user.name user.email; do
     if [ -z "$(git config --global "$key")" ]; then
-        value=""
-        while [ -z "$value" ]; do
-            read -r -p "Git $key: " value || { echo "No input. Set it with: git config --global $key <value>"; exit 1; }
-        done
-        git config --global "$key" "$value"
+        read -r -p "Git $key (Enter to skip): " value || { value=""; echo; }
+        if [ -n "$value" ]; then
+            git config --global "$key" "$value"
+        else
+            echo "Skipped. Set it later with: git config --global $key <value>"
+        fi
     fi
 done
 
