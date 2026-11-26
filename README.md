@@ -18,8 +18,8 @@ Each of these tools turns on a few more features:
 
 | Tool | What it enables |
 |---|---|
-| [gh](https://cli.github.com) | the `pr` and `ci` git aliases, and GitHub logins through `gh` (run `gh auth login`) |
-| [git-lfs](https://git-lfs.com) | repos that use Git LFS, which fail to check out without it |
+| [gh](https://cli.github.com) | the `pr` and `ci` git aliases. `gh auth login` also offers to set up git to log in to GitHub through `gh`. |
+| [git-lfs](https://git-lfs.com) | repos that use Git LFS. Run `git lfs install` once to download LFS files on every checkout, or `git lfs install --skip-smudge` to keep the small pointer files until you run `git lfs pull` in a repo. |
 | [uv](https://docs.astral.sh/uv/) | the `py` alias |
 | [Starship](https://starship.rs) | the `pstar` prompt |
 | [VS Code](https://code.visualstudio.com) | the `vs` alias |
@@ -29,7 +29,7 @@ On a Mac, run `brew bundle` in this folder to install them all. On Linux, use yo
 
 ## Contents
 
-- `gitconfig` - Git aliases, git-lfs, and `gh` as the credential helper for GitHub
+- `gitconfig` - Git aliases and settings
 - `zshrc` - Completions, colors, aliases, and the prompt
 - `zprofile` - Homebrew's environment if Homebrew is installed, and `~/.local/bin` on `PATH`
 - `aliases` - Shell aliases
