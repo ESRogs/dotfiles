@@ -15,14 +15,14 @@ use_git_prompt() {
     local script="${GIT_PROMPT_DIR:-$HOME/code/git-prompt.zsh}/git-prompt.zsh"
     local git_status=''
     if [[ -r "$script" ]]; then
-        source "$script"
         ZSH_GIT_PROMPT_SHOW_STASH=1
+        source "$script"
         git_status=' $(gitprompt)'
     else
         echo "Can't find $script, so the prompt leaves out git status"
     fi
-    PROMPT='%(?.%{$fg[green]%}✔.%{$fg[red]%}✘)%{$reset_color%} %{$fg[yellow]%}%~%{$reset_color%}'"$git_status"'
-%{$fg[white]%}%T%{$reset_color%} %# '
+    PROMPT='%(?.%F{green}✔.%F{red}✘)%f %F{yellow}%~%f'"$git_status"'
+%F{white}%T%f %# '
 }
 
 pstar() {
