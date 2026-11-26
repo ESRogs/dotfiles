@@ -5,6 +5,8 @@ autoload -U colors && colors
 
 [ -f ~/.aliases ] && source ~/.aliases
 
+alias rezsh="source ~/.zprofile && source ~/.zshrc"
+
 # Prompt: git-prompt.zsh (default) or Starship.
 # To start with Starship, add : ${PROMPT_STYLE:=starship} to ~/.zshrc before the line that sources this file.
 # pstar and pgit replace the current shell with a new one that uses the other prompt.

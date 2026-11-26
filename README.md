@@ -30,7 +30,7 @@ On a Mac, run `brew bundle` in this folder to install them all. On Linux, use yo
 ## Contents
 
 - `gitconfig` - Git aliases and settings
-- `zshrc` - Completions, colors, aliases, and the prompt
+- `zshrc` - Completions, colors, aliases, `rezsh` to reload the zsh config, and the prompt
 - `zprofile` - Homebrew's environment if Homebrew is installed, and `~/.local/bin` on `PATH`
 - `aliases` - Shell aliases
 - `Brewfile` - The optional tools, for `brew bundle` on a Mac
