@@ -12,7 +12,7 @@ cd ~/dotfiles
 
 ## Contents
 
-- `gitconfig` - Git aliases and settings
+- `gitconfig` - Git aliases, git-lfs, and `gh` as the credential helper for GitHub
 - `zshrc` - Completions, colors, aliases, and the prompt
 - `zprofile` - Homebrew's environment, and `~/.local/bin` on `PATH`
 - `aliases` - Shell aliases
