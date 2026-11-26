@@ -39,7 +39,9 @@ On a Mac, run `brew bundle` in this folder to install them all. On Linux, use yo
 
 `setup.sh` adds a line to `~/.zprofile` that sources this repo's `zprofile`, and two lines to `~/.zshrc` that set `GIT_PROMPT_DIR` and source this repo's `zshrc`. Settings for one machine only can stay in `~/.zprofile` and `~/.zshrc`.
 
-The lines that `setup.sh` adds to these files use the repo's full path. To move the repo, delete those lines and run `setup.sh` again from the new folder.
+`setup.sh` also links `~/.aliases` to this repo's `aliases`, and if `~/.bashrc` exists, adds a line to it that sources `~/.aliases`.
+
+The lines that `setup.sh` adds to `~/.gitconfig`, `~/.zprofile` and `~/.zshrc` use the repo's full path. To move the repo, delete those lines and run `setup.sh` again from the new folder. It replaces the `~/.aliases` link too.
 
 ## Prompt
 

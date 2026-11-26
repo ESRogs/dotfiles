@@ -53,21 +53,27 @@ for key in user.name user.email; do
     fi
 done
 
-# Symlink aliases
-if [ -L ~/.aliases ]; then
-    echo "~/.aliases is already a symlink, skipping"
-elif [ -f ~/.aliases ]; then
-    echo "~/.aliases exists as a file. Back it up and remove it first."
-    exit 1
+# Link ~/.aliases to this repo's aliases, replacing a broken link
+if [ -L ~/.aliases ] && [ ~/.aliases -ef "$DOTFILES_DIR/aliases" ]; then
+    echo "~/.aliases already links to $DOTFILES_DIR/aliases, skipping"
+elif [ -L ~/.aliases ] && [ ! -e ~/.aliases ]; then
+    ln -sf "$DOTFILES_DIR/aliases" ~/.aliases
+    echo "Replaced the broken ~/.aliases link with a link to $DOTFILES_DIR/aliases"
+elif [ -e ~/.aliases ]; then
+    echo "~/.aliases already exists, so this repo's aliases aren't linked. Move it aside and run setup.sh again to link them."
 else
     ln -s "$DOTFILES_DIR/aliases" ~/.aliases
     echo "Linked aliases"
 fi
 
-# Append a line to a file unless the file already has it
+# Append a line to a file unless the file already has it. If the file doesn't
+# end with a newline, add one first, so that the line starts on its own.
 add_line() {
     local file="$1" line="$2"
     if ! grep -qxF "$line" "$file" 2>/dev/null; then
+        if [ -s "$file" ] && [ -n "$(tail -c 1 "$file")" ]; then
+            echo >> "$file"
+        fi
         echo "$line" >> "$file"
         echo "Added to $file: $line"
     fi
