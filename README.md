@@ -12,7 +12,7 @@ cd ~/dotfiles
 ./setup.sh
 ```
 
-On a fresh Mac, running `git` for the first time offers to install Apple's Command Line Tools, which include git. On Linux, run `chsh -s "$(which zsh)"` if zsh isn't your login shell yet.
+On a fresh Mac, running `git` for the first time offers to install Apple's Command Line Tools, which include git. On Linux, run `chsh -s "$(command -v zsh)"` if zsh isn't your login shell yet, then log out and back in.
 
 ## Optional tools
 
@@ -20,14 +20,14 @@ Each of these tools turns on a few more features:
 
 | Tool | What it enables |
 |---|---|
-| [gh](https://cli.github.com) | the `pr` and `ci` git aliases. `gh auth login` also offers to set up git to log in to GitHub through `gh`. |
+| [gh](https://cli.github.com) | the `pr` and `ci` git aliases, which work on the current branch's pull request. `gh auth login` also offers to set up git to log in to GitHub through `gh`. |
 | [git-lfs](https://git-lfs.com) | repos that use Git LFS. Run `git lfs install` once to download LFS files on every checkout, or `git lfs install --skip-smudge` to keep the small pointer files until you run `git lfs pull` in a repo. |
 | [uv](https://docs.astral.sh/uv/) | the `py` alias |
 | [Starship](https://starship.rs) | the `pstar` prompt |
 | [VS Code](https://code.visualstudio.com) | the `vs` alias, which needs VS Code's `code` command on `PATH` |
 | tmux, btop, watch | nothing in these files; they're tools I use everywhere |
 
-On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this folder, in a shell opened after `setup.sh`, to install them all. On Linux, use your package manager or each tool's own installer.
+On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this folder, in a shell opened after installing Homebrew and running `setup.sh`, to install them all. On Linux, use your package manager or each tool's own installer.
 
 ## Contents
 
@@ -43,7 +43,7 @@ On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this fo
 
 `setup.sh` also links `~/.aliases` to this repo's `aliases`, and if `~/.bashrc` exists, adds a line to it that sources `~/.aliases`.
 
-The lines that `setup.sh` adds to `~/.gitconfig`, `~/.zprofile` and `~/.zshrc` use the repo's full path. To move the repo, delete those lines and run `setup.sh` again from the new folder. It replaces the `~/.aliases` link too.
+The lines that `setup.sh` adds to `~/.gitconfig`, `~/.zprofile` and `~/.zshrc` use the repo's full path. To move the repo, move the folder, delete those lines, and run `setup.sh` again from the new folder. It replaces the `~/.aliases` link too, which moving the folder breaks.
 
 ## Prompt
 
