@@ -39,18 +39,38 @@ else
     echo "Linked aliases"
 fi
 
-# Add source line to shell rc if not present
-for rc in ~/.bashrc ~/.zshrc; do
-    if [ -f "$rc" ]; then
-        if ! grep -q "source ~/.aliases" "$rc"; then
-            echo "" >> "$rc"
-            echo "# Load custom aliases" >> "$rc"
-            echo "[ -f ~/.aliases ] && source ~/.aliases" >> "$rc"
-            echo "Added source line to $rc"
-        fi
+# Append a line to a file unless the file already has it
+add_line() {
+    local file="$1" line="$2"
+    if ! grep -qxF "$line" "$file" 2>/dev/null; then
+        echo "$line" >> "$file"
+        echo "Added to $file: $line"
     fi
-done
+}
+
+# bash loads the aliases directly; zsh loads them from this repo's zshrc
+if [ -f ~/.bashrc ]; then
+    add_line ~/.bashrc "[ -f ~/.aliases ] && source ~/.aliases"
+fi
+
+# Ask where git-prompt.zsh should go, unless ~/.zshrc already says, and clone it if missing
+GIT_PROMPT_DIR="$(sed -n 's/^export GIT_PROMPT_DIR="\(.*\)"$/\1/p' ~/.zshrc 2>/dev/null | tail -n 1)"
+if [ -z "$GIT_PROMPT_DIR" ]; then
+    default="$HOME/code/git-prompt.zsh"
+    read -r -p "Folder for git-prompt.zsh [$default]: " GIT_PROMPT_DIR || true
+    GIT_PROMPT_DIR="${GIT_PROMPT_DIR:-$default}"
+    GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\~/$HOME}"
+fi
+if [ ! -d "$GIT_PROMPT_DIR" ]; then
+    git clone https://github.com/woefe/git-prompt.zsh "$GIT_PROMPT_DIR"
+fi
+
+# Load this repo's zprofile and zshrc from ~/.zprofile and ~/.zshrc,
+# which keep any settings for one machine only
+add_line ~/.zprofile "source \"$DOTFILES_DIR/zprofile\""
+add_line ~/.zshrc "export GIT_PROMPT_DIR=\"$GIT_PROMPT_DIR\""
+add_line ~/.zshrc "source \"$DOTFILES_DIR/zshrc\""
 
 echo "Done!"
 echo ""
-echo "Run 'source ~/.aliases' or restart your shell to load aliases."
+echo "Open a new shell to load the changes."
