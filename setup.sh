@@ -49,9 +49,10 @@ else
     echo "Added an include of $DOTFILES_DIR/gitconfig to the top of $global_gitconfig"
 fi
 
-# Ask for the git identity if ~/.gitconfig doesn't have one yet
+# Ask for the git identity if the global git config doesn't have one yet,
+# counting files that it includes
 for key in user.name user.email; do
-    if [ -z "$(git config --global "$key")" ]; then
+    if [ -z "$(git config --global --includes "$key")" ]; then
         read -r -p "Git $key (Enter to skip): " value || { value=""; echo; }
         if [ -n "$value" ]; then
             git config --global "$key" "$value"
