@@ -41,4 +41,4 @@ On a Mac, install [Homebrew](https://brew.sh), then run `brew bundle` in this fo
 
 ## Prompt
 
-The default prompt is [git-prompt.zsh](https://github.com/woefe/git-prompt.zsh). It shows a ✔ or ✘ for the last command's exit status, the current directory, the git status, and the time. `setup.sh` asks which folder to clone it into, with `~/code/git-prompt.zsh` as the default. Run `pstar` to switch to [Starship](https://starship.rs) in the current shell, and `pgit` to switch back.
+The default prompt is [git-prompt.zsh](https://github.com/woefe/git-prompt.zsh). It shows a ✔ or ✘ for the last command's exit status, the current directory, the git status, and the time. `setup.sh` asks which folder to clone it into, with `~/code/git-prompt.zsh` as the default, and checks out version 2.4.0. Run `pstar` to switch to [Starship](https://starship.rs) in the current shell, and `pgit` to switch back.

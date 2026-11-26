@@ -74,8 +74,9 @@ if [ -z "$GIT_PROMPT_DIR" ]; then
     GIT_PROMPT_DIR="${GIT_PROMPT_DIR:-$default}"
     GIT_PROMPT_DIR="${GIT_PROMPT_DIR/#\~/$HOME}"
 fi
+GIT_PROMPT_VERSION="v2.4.0"
 if [ ! -d "$GIT_PROMPT_DIR" ]; then
-    git clone https://github.com/woefe/git-prompt.zsh "$GIT_PROMPT_DIR"
+    git -c advice.detachedHead=false clone --branch "$GIT_PROMPT_VERSION" https://github.com/woefe/git-prompt.zsh "$GIT_PROMPT_DIR"
 fi
 
 # Load this repo's zprofile and zshrc from ~/.zprofile and ~/.zshrc,
