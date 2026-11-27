@@ -11,6 +11,47 @@
     unstage = reset HEAD
     ra = "!f() { origin=\"$(git remote get-url origin)\" || return; git remote add \"$1\" \"$(printf '%s\\n' \"$origin\" | sed -E 's#([:/])[^/:]+/([^/]+)$#\\1'\"$1\"'/\\2#')\"; }; f"
     rr = "!f() { git branch --merged | grep -vE '^[*+]|^ *(main|master)$' | xargs -r -n 1 git branch -d; }; f"
+    cull = "!f() { \
+        has() { git for-each-ref --format='%(refname)' \"$1\" | grep -qxF \"$1\"; }; \
+        if git remote get-url origin >/dev/null 2>&1; then git fetch -q --prune origin || return; fi; \
+        if [ -n \"$2\" ]; then base=\"$2\"; \
+        else \
+            base=''; \
+            if git rev-parse -q --verify refs/remotes/origin/HEAD >/dev/null 2>&1; then base=\"$(git symbolic-ref -q refs/remotes/origin/HEAD)\"; base=\"${base#refs/remotes/origin/}\"; fi; \
+            if [ -z \"$base\" ]; then \
+                base=main; \
+                has refs/heads/main || has refs/remotes/origin/main || base=master; \
+            fi; \
+        fi; \
+        current=\"$(git branch --show-current)\"; \
+        branch=\"${1:-$current}\"; \
+        if [ -z \"$branch\" ]; then echo \"Name a branch to cull\" >&2; return 1; fi; \
+        if [ \"$branch\" = \"$base\" ]; then echo \"Name a branch other than $base to cull\" >&2; return 1; fi; \
+        if ! has \"refs/heads/$branch\"; then echo \"There is no branch named $branch\" >&2; return 1; fi; \
+        if [ \"$branch\" = \"$current\" ] && [ -n \"$(git status --porcelain --untracked-files=no)\" ]; then echo \"Commit or stash the changes in $branch first\" >&2; return 1; fi; \
+        if has \"refs/remotes/origin/$base\"; then ref=\"refs/remotes/origin/$base\"; \
+        elif has \"refs/heads/$base\"; then ref=\"refs/heads/$base\"; \
+        else echo \"There is no branch named $base\" >&2; return 1; fi; \
+        name=\"${ref#refs/remotes/}\"; name=\"${name#refs/heads/}\"; \
+        tree=\"$(git merge-tree --write-tree --no-messages \"$ref\" \"refs/heads/$branch\")\"; status=$?; \
+        if [ $status -eq 129 ]; then echo \"git cull needs git 2.38 or newer\" >&2; return 1; fi; \
+        if [ $status -eq 1 ]; then echo \"$branch conflicts with $name, so it stays\" >&2; return 1; fi; \
+        if [ $status -ne 0 ]; then return 1; fi; \
+        if [ \"$tree\" != \"$(git rev-parse \"$ref^{tree}\")\" ]; then \
+            echo \"$branch has changes that are not in $name, so it stays:\" >&2; \
+            git --no-pager diff --stat \"$ref\" \"$tree\" >&2; \
+            return 1; \
+        fi; \
+        if [ \"$branch\" = \"$current\" ]; then \
+            if has \"refs/heads/$base\"; then \
+                git switch -q \"$base\" || return; \
+                if [ \"$ref\" != \"refs/heads/$base\" ]; then git merge -q --ff-only \"$ref\" || echo \"Could not fast-forward $base to $name\" >&2; fi; \
+            else \
+                git switch -q -c \"$base\" --track \"$ref\" || return; \
+            fi; \
+        fi; \
+        git branch -D \"$branch\"; \
+    }; f"
     biggest = "!f() { git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectname) %(objectsize) %(rest)' | awk '$1 == \"blob\"' | sort -n -k 3 | awk '{ size = $3; unit = 1; while (size >= 1024 && unit < 4) { size /= 1024; unit++ }; split(\"B KiB MiB GiB\", units); path = $0; sub(/^[^ ]+ [^ ]+ [^ ]+ /, \"\", path); printf \"%s %7.1f %-3s %s\\n\", substr($2, 1, 12), size, units[unit], path }'; }; f"
     patch = commit --amend --no-edit
     pr = !gh pr create
