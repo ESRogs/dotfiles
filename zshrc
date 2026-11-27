@@ -35,17 +35,25 @@ use_git_prompt() {
 %F{white}%T%f %# '
 }
 
-# Save the prompt style in $1 for new shells, then replace this shell with a new one, keeping a login shell a login shell.
-# Refuse while jobs exist, since the new shell can't resume them.
+# Save the prompt style in $1 (named $2 in messages) for new shells. Then, if this shell uses another prompt,
+# replace it with a new one that uses $1, keeping a login shell a login shell. Skip that while this shell has jobs,
+# which the new shell couldn't resume.
+# $3 is the command that called this, for the message about jobs.
 switch_prompt() {
-    if (( ${#jobstates} )); then
-        echo "Finish or fg your jobs first" >&2
-        return 1
-    fi
     # Write to a temporary file and rename it, so that a shell starting meanwhile never reads a partly written file
     mkdir -p "${prompt_style_file:h}" &&
         print -r -- "$1" >| "$prompt_style_file.$$" &&
         mv -f "$prompt_style_file.$$" "$prompt_style_file" || return
+    if [[ "$prompt_style" == "$1" ]]; then
+        echo "Saved $2 as the prompt for new shells. This shell already uses it."
+        return
+    fi
+    if (( ${#jobstates} )); then
+        echo "Saved $2 as the prompt for new shells. This shell keeps its prompt because it has jobs:"
+        jobs
+        echo "Run $3 again after those jobs end to switch this shell too."
+        return
+    fi
     if [[ -o login ]]; then
         exec zsh -l
     else
@@ -58,11 +66,11 @@ pstar() {
         echo "Starship isn't installed" >&2
         return 1
     fi
-    switch_prompt starship
+    switch_prompt starship Starship pstar
 }
 
 pgit() {
-    switch_prompt git
+    switch_prompt git git-prompt.zsh pgit
 }
 
 if [[ "$prompt_style" == "starship" ]]; then
