@@ -27,8 +27,13 @@ use_git_prompt() {
 %F{white}%T%f %# '
 }
 
-# Replace this shell with a new zsh that uses the prompt style in $1, keeping a login shell a login shell
+# Replace this shell with a new zsh that uses the prompt style in $1, keeping a login shell a login shell.
+# Refuse while jobs exist, since the new shell can't resume them.
 restart_with_prompt() {
+    if (( ${#jobstates} )); then
+        echo "Finish or fg your jobs first" >&2
+        return 1
+    fi
     if [[ -o login ]]; then
         PROMPT_STYLE="$1" exec zsh -l
     else
