@@ -8,12 +8,18 @@ autoload -U colors && colors
 alias rezsh="source ~/.zprofile && source ~/.zshrc"
 
 # Prompt: git-prompt.zsh (default) or Starship.
-# To start with Starship, add : ${PROMPT_STYLE:=starship} to ~/.zshrc before the line that sources this file.
-# pstar and pgit replace the current shell with a new one that uses the other prompt.
+# pstar and pgit save the choice in prompt_style_file, which new shells read when they start.
 # GIT_PROMPT_DIR is the folder that git-prompt.zsh is cloned into. setup.sh sets it in ~/.zshrc.
-PROMPT_STYLE="${PROMPT_STYLE:-git}"
-# Keep the style inside this shell, so that programs started from it, such as a tmux server, use their own default
-typeset +x PROMPT_STYLE
+prompt_style_file="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/prompt-style"
+
+# Choose the prompt once per shell, so that rezsh keeps this shell's prompt.
+# Use Starship only if it's the saved choice and it's installed.
+if [[ -z "${prompt_style:-}" ]]; then
+    prompt_style="git"
+    if [[ -f "$prompt_style_file" && -r "$prompt_style_file" && "$(<"$prompt_style_file")" == "starship" ]] && (( $+commands[starship] )); then
+        prompt_style="starship"
+    fi
+fi
 
 use_git_prompt() {
     local script="${GIT_PROMPT_DIR:-$HOME/code/git-prompt.zsh}/git-prompt.zsh"
@@ -29,17 +35,21 @@ use_git_prompt() {
 %F{white}%T%f %# '
 }
 
-# Replace this shell with a new zsh that uses the prompt style in $1, keeping a login shell a login shell.
+# Save the prompt style in $1 for new shells, then replace this shell with a new one, keeping a login shell a login shell.
 # Refuse while jobs exist, since the new shell can't resume them.
-restart_with_prompt() {
+switch_prompt() {
     if (( ${#jobstates} )); then
         echo "Finish or fg your jobs first" >&2
         return 1
     fi
+    # Write to a temporary file and rename it, so that a shell starting meanwhile never reads a partly written file
+    mkdir -p "${prompt_style_file:h}" &&
+        print -r -- "$1" >| "$prompt_style_file.$$" &&
+        mv -f "$prompt_style_file.$$" "$prompt_style_file" || return
     if [[ -o login ]]; then
-        PROMPT_STYLE="$1" exec zsh -l
+        exec zsh -l
     else
-        PROMPT_STYLE="$1" exec zsh
+        exec zsh
     fi
 }
 
@@ -48,14 +58,14 @@ pstar() {
         echo "Starship isn't installed" >&2
         return 1
     fi
-    restart_with_prompt starship
+    switch_prompt starship
 }
 
 pgit() {
-    restart_with_prompt git
+    switch_prompt git
 }
 
-if [[ "$PROMPT_STYLE" == "starship" ]] && (( $+commands[starship] )); then
+if [[ "$prompt_style" == "starship" ]]; then
     # Set up Starship once per shell, since each setup wraps the previous one's key handler
     (( $+functions[prompt_starship_precmd] )) || eval "$(starship init zsh)"
 else
