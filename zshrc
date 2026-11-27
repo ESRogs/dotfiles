@@ -12,6 +12,8 @@ alias rezsh="source ~/.zprofile && source ~/.zshrc"
 # pstar and pgit replace the current shell with a new one that uses the other prompt.
 # GIT_PROMPT_DIR is the folder that git-prompt.zsh is cloned into. setup.sh sets it in ~/.zshrc.
 PROMPT_STYLE="${PROMPT_STYLE:-git}"
+# Keep the style inside this shell, so that programs started from it, such as a tmux server, use their own default
+typeset +x PROMPT_STYLE
 
 use_git_prompt() {
     local script="${GIT_PROMPT_DIR:-$HOME/code/git-prompt.zsh}/git-prompt.zsh"
